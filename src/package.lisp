@@ -3,4 +3,8 @@
   (:export #:+zstd-version+
            #:zstd-error
            #:compress
-           #:decompress))
+           #:decompress
+           #:make-decompressing-stream
+           #:make-compressing-stream
+           #:zstd-decompressing-stream
+           #:zstd-compressing-stream))
