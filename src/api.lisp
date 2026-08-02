@@ -57,8 +57,9 @@
       (load-foreign-library p)
       t)))
 
-(defun ensure-zstd ()
-  "Load native libzstd via CFFI search path / absolute preload — not LD_LIBRARY_PATH."
+(defun %load-native ()
+  "Load libzstd via CFFI search path / absolute preload (not LD_LIBRARY_PATH).
+   Invoked at ASDF load — consumers just call COMPRESS / DECOMPRESS."
   (unless *zstd-loaded*
     (let ((preloaded nil))
       (dolist (dir (%native-search-dirs))
@@ -84,7 +85,7 @@
 
 (defun compress (octets &key (level 3))
   "Compress OCTETS with Zstd. LEVEL typically 1..22 (default 3). Returns octet vector."
-  (ensure-zstd)
+  (%load-native)
   (check-type level (integer -131072 22))
   (let* ((in (%octet-vector octets))
          (in-len (length in))
@@ -99,7 +100,7 @@
 (defun decompress (octets &key max-decompressed-size)
   "Decompress Zstd OCTETS. When frame content size is unknown, grows up to
    MAX-DECOMPRESSED-SIZE (default 64 MiB)."
-  (ensure-zstd)
+  (%load-native)
   (let* ((in (%octet-vector octets))
          (in-len (length in))
          (max-cap (or max-decompressed-size (* 64 1024 1024))))

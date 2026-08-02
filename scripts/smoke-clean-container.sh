@@ -24,8 +24,7 @@ cat >"$SMOKE_LISP" <<'EOF'
  `(:source-registry (:directory ,(uiop:ensure-directory-pathname *pkg*))
                     :inherit-configuration))
 (ql:quickload '("cffi" "cl-stack-zstd") :silent t)
-(multiple-value-bind (ok ver) (cl-stack-zstd:ensure-zstd)
-  (format t "~&ensure-zstd => ~A ~A~%" ok ver))
+(format t "~&+zstd-version+ => ~A~%" cl-stack-zstd:+zstd-version+)
 (let* ((s "hello zstd overlay")
        (raw (map '(simple-array (unsigned-byte 8) (*)) #'char-code s))
        (enc (cl-stack-zstd:compress raw :level 3))
@@ -48,8 +47,7 @@ if [[ ! -f "$QL/setup.lisp" ]]; then
            --eval "(quicklisp-quickstart:install :path #p\"/ql/\")" >/dev/null'
 fi
 
-# Resolve natives via cffi:*foreign-library-directories* + absolute preload in
-# ensure-zstd — never LD_LIBRARY_PATH (ignored mid-process on Linux anyway).
+# Resolve natives via CFFI at ASDF load — never LD_LIBRARY_PATH.
 docker run --rm --platform linux/amd64 \
   -e DEBIAN_FRONTEND=noninteractive \
   -e CL_STACK_ZSTD_ROOT=/opt/cl-stack-zstd \
