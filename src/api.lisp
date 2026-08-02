@@ -11,10 +11,63 @@
 
 (defvar *zstd-loaded* nil)
 
+(defun %host-os ()
+  #+windows "windows"
+  #+darwin "darwin"
+  #+linux "linux"
+  #-(or windows darwin linux) "unknown")
+
+(defun %host-arch ()
+  #+(or x86-64 x64) "amd64"
+  #+(or arm64 aarch64) "arm64"
+  #-(or x86-64 x64 arm64 aarch64) "unknown")
+
+(defun %native-search-dirs ()
+  "Overlay native/ (OCI) and lib/<os>-<arch>/ (local build). No LD_LIBRARY_PATH."
+  (let ((dirs '()))
+    (let ((v (uiop:getenv "CL_STACK_ZSTD_NATIVE")))
+      (when (and v (plusp (length v)))
+        (push v dirs)))
+    (ignore-errors
+      (let* ((sys (asdf:find-system :cl-stack-zstd nil))
+             (root (when sys (asdf:system-source-directory sys))))
+        (when root
+          (push (namestring (merge-pathnames "native/" root)) dirs)
+          (push (namestring
+                 (merge-pathnames (format nil "lib/~A-~A/" (%host-os) (%host-arch)) root))
+                dirs))))
+    (nreverse dirs)))
+
+(defun %lib-candidates ()
+  #+windows '("libzstd.dll" "zstd.dll")
+  #+darwin '("libzstd.dylib" "libzstd.1.dylib")
+  #+(and unix (not darwin)) '("libzstd.so" "libzstd.so.1")
+  #-(or windows darwin unix) '("libzstd.so"))
+
+(defun %find-libzstd (dir)
+  (dolist (name (%lib-candidates))
+    (let ((p (merge-pathnames name (uiop:ensure-directory-pathname dir))))
+      (when (probe-file p)
+        (return (namestring (truename p)))))))
+
+(defun %absolute-preload (dir)
+  "Load libzstd by absolute path (cl-repository post-install policy)."
+  (let ((p (%find-libzstd dir)))
+    (when p
+      (load-foreign-library p)
+      t)))
+
 (defun ensure-zstd ()
-  "Load native libzstd (overlay native/ must be on CFFI / loader path)."
+  "Load native libzstd via CFFI search path / absolute preload — not LD_LIBRARY_PATH."
   (unless *zstd-loaded*
-    (load-foreign-library 'libzstd)
+    (let ((preloaded nil))
+      (dolist (dir (%native-search-dirs))
+        (when (and dir (uiop:directory-exists-p dir))
+          (pushnew dir cffi:*foreign-library-directories* :test #'equal)
+          (unless preloaded
+            (setf preloaded (%absolute-preload dir)))))
+      (unless preloaded
+        (load-foreign-library 'libzstd)))
     (setf *zstd-loaded* t))
   (values t +zstd-version+))
 
@@ -64,7 +117,6 @@
                    (loop for i below n do (setf (aref result i) (mem-aref out :uint8 i)))
                    result)))))
           (t
-           ;; Unknown or huge advertised size — grow from a heuristic.
            (let ((cap (min max-cap (max 1024 (* 8 in-len)))))
              (loop
                (when (> cap max-cap)

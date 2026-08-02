@@ -48,10 +48,11 @@ if [[ ! -f "$QL/setup.lisp" ]]; then
            --eval "(quicklisp-quickstart:install :path #p\"/ql/\")" >/dev/null'
 fi
 
+# Resolve natives via cffi:*foreign-library-directories* + absolute preload in
+# ensure-zstd — never LD_LIBRARY_PATH (ignored mid-process on Linux anyway).
 docker run --rm --platform linux/amd64 \
   -e DEBIAN_FRONTEND=noninteractive \
   -e CL_STACK_ZSTD_ROOT=/opt/cl-stack-zstd \
-  -e LD_LIBRARY_PATH=/opt/cl-stack-zstd/native \
   -v "$PKG:/opt/cl-stack-zstd:ro" \
   -v "$QL:/ql:ro" \
   -v "$SMOKE_LISP:/opt/smoke.lisp:ro" \

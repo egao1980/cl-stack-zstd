@@ -23,17 +23,15 @@ plus a thin CFFI `compress` / `decompress` API for HTTP `Content-Encoding: zstd`
 ## Consumer
 
 ```lisp
-;; After cl-repository install (native/ on CFFI / loader path):
+;; cl-repository install writes cl-repo-init.lisp (pushes native/ + absolute preload).
+;; Local/ASDF: ensure-zstd pushes system native/ and lib/<os>-<arch>/ onto
+;; cffi:*foreign-library-directories* — do not set LD_LIBRARY_PATH.
 (asdf:load-system "cl-stack-zstd")
 (cl-stack-zstd:ensure-zstd) ; => T, "1.5.7"
 (cl-stack-zstd:decompress (cl-stack-zstd:compress octets))
 ```
 
-```bash
-export LD_LIBRARY_PATH="$HOME/.local/share/cl-systems/cl-stack-zstd-1.5.7/native${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-```
-
-Smoke (linux/amd64): `scripts/smoke-clean-container.sh`.
+Smoke (linux/amd64): `scripts/smoke-clean-container.sh` (no `LD_LIBRARY_PATH`).
 
 ## Build natives locally
 
