@@ -1,0 +1,5 @@
+cl-stack-zstd bundles Zstandard shared libraries built from upstream facebook/zstd
+(https://github.com/facebook/zstd). Zstandard is dual-licensed under BSD
+(https://github.com/facebook/zstd/blob/dev/LICENSE) and GPLv2.
+
+Zstd copyright: Copyright (c) Meta Platforms, Inc. and affiliates.
