@@ -36,4 +36,6 @@
   :components ((:file "package")
                (:file "api-test")
                (:file "streams-test"))
-  :perform (test-op (o c) (symbol-call :rove :run c)))
+  :perform (test-op (o c)
+             (unless (symbol-call :rove :run c)
+               (error "tests failed for ~A" (component-name c)))))
