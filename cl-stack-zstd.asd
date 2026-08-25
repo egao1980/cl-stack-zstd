@@ -27,7 +27,8 @@
                 :files (("lib/darwin-arm64/libzstd.dylib" . "libzstd.dylib")))))
      (:platform (:os "windows" :arch "amd64")
       :layers ((:role "native-library"
-                :files (("lib/windows-amd64/libzstd.dll" . "libzstd.dll")))))))))
+                :files (("lib/windows-amd64/libzstd.dll" . "libzstd.dll"))))))
+    :ci (:sources (("rove" :ql))))))
 
 (defsystem "cl-stack-zstd/tests"
   :depends-on ("cl-stack-zstd" "rove")
