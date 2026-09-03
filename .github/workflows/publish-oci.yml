@@ -114,7 +114,6 @@ jobs:
       package-name: cl-stack-zstd
       version: ${{ needs.resolve-version.outputs.version }}
       registry: ${{ inputs.registry || 'ghcr.io' }}
-      packager-tag: "0.10.0"
       source-paths: |
         cl-stack-zstd.asd
         src
