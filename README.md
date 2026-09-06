@@ -2,7 +2,9 @@
 
 MIT. Ships **Zstandard** (`libzstd`) as
 [cl-repository](https://github.com/egao1980/cl-repository) platform overlays,
-plus a thin CFFI `compress` / `decompress` API for HTTP `Content-Encoding: zstd`.
+plus CFFI and [`compression-protocol`](https://github.com/egao1980/compression-protocol)
+methods for `:zstd`. HTTP `Content-Encoding: zstd` is
+[`http-encoding-zstd`](https://github.com/egao1980/http-encoding-zstd).
 
 | | |
 |--|--|
@@ -23,9 +25,11 @@ plus a thin CFFI `compress` / `decompress` API for HTTP `Content-Encoding: zstd`
 ## Consumer
 
 ```lisp
-;; cl-repository: cl-repo-init.lisp preloads native/. No ensure-*, no LD_LIBRARY_PATH.
+;; Lisp API is compression-protocol. CFFI stays internal.
 (asdf:load-system "cl-stack-zstd")
-(cl-stack-zstd:decompress (cl-stack-zstd:compress octets))
+(compression-protocol:decompress
+ (compression-protocol:compress octets :algorithm :zstd)
+ :algorithm :zstd)
 ```
 
 Smoke (linux/amd64): `scripts/smoke-clean-container.sh` (no `LD_LIBRARY_PATH`).
