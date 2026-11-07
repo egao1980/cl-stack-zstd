@@ -23,7 +23,6 @@
 
 (defun make-decompressing-stream (source)
   "Return a binary input stream that decompresses octets read from SOURCE."
-  (%load-native)
   (check-type source stream)
   (let ((ctx (%zstd-create-dstream)))
     (when (null-pointer-p ctx)
@@ -40,7 +39,6 @@
 
 (defun make-compressing-stream (source &key (level 3))
   "Return a binary input stream that compresses octets read from SOURCE."
-  (%load-native)
   (check-type source stream)
   (let ((ctx (%zstd-create-cstream)))
     (when (null-pointer-p ctx)
