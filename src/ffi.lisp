@@ -1,11 +1,5 @@
 (in-package #:cl-stack-zstd)
 
-(define-foreign-library libzstd
-  (:darwin (:or "libzstd.1.dylib" "libzstd.dylib"))
-  (:unix (:or "libzstd.so.1" "libzstd.so"))
-  (:windows (:or "libzstd.dll" "zstd.dll"))
-  (t (:default "libzstd")))
-
 (defcstruct zstd-in-buffer
   (src :pointer)
   (size :size)

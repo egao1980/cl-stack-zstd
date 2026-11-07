@@ -1,12 +1,15 @@
 (defsystem "cl-stack-zstd"
-  :version "1.5.7"
+  :version "1.5.7.1"
   :description "Zstandard native overlays + thin CFFI for cl-stack Content-Encoding"
   :author "egao1980"
   :license "MIT"
+  :defsystem-depends-on ("asdf-native")
   :depends-on ("cffi" "trivial-gray-streams" "compression-protocol")
   :serial t
   :pathname "src"
   :components ((:file "package")
+               ;; $CL_STACK_ZSTD_NATIVE, native/ (overlay), lib/<os>-<arch>/ (checkout), else the system library; missing → warning (it loaded lazily before).
+               (:native-library "zstd" :versions ("1") :env "CL_STACK_ZSTD_NATIVE" :system t :optional t)
                (:file "ffi")
                (:file "api")
                (:file "streams")
