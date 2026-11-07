@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Package / Zstd version (default: from tag or 1.5.7)"
+        description: "Package version, upstream + revision (default: from tag or 1.5.7.1); Zstd builds from the first three parts"
         required: false
         default: ""
       registry:
@@ -16,7 +16,8 @@ on:
         default: "ghcr.io"
 
 env:
-  ZSTD_VERSION_DEFAULT: "1.5.7"
+  # Package version = upstream Zstd version + package revision (as cl-stack-ssl).
+  ZSTD_VERSION_DEFAULT: "1.5.7.1"
 
 jobs:
   build:
@@ -60,13 +61,15 @@ jobs:
             $V = $env:GITHUB_REF_NAME.Substring(1)
           }
           if ([string]::IsNullOrEmpty($V)) { $V = $env:ZSTD_VERSION_DEFAULT }
+          $U = (($V -split '\.')[0..2]) -join '.'
           Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$V"
-          Write-Host "Zstd/package version=$V"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "upstream=$U"
+          Write-Host "package version=$V Zstd=$U"
 
       - name: Build Zstd shared libs (Unix)
         if: matrix.os != 'windows'
         env:
-          ZSTD_VERSION: ${{ steps.ver.outputs.version }}
+          ZSTD_VERSION: ${{ steps.ver.outputs.upstream }}
         run: |
           chmod +x scripts/build-zstd.sh
           ./scripts/build-zstd.sh
@@ -77,7 +80,7 @@ jobs:
         if: matrix.os == 'windows'
         shell: pwsh
         env:
-          ZSTD_VERSION: ${{ steps.ver.outputs.version }}
+          ZSTD_VERSION: ${{ steps.ver.outputs.upstream }}
         run: |
           .\scripts\build-zstd.ps1
           New-Item -ItemType Directory -Force -Path native-bundle | Out-Null

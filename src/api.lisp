@@ -2,7 +2,7 @@
 
 ;; defparameter: SBCL DEFCONSTANT on strings trips DEFCONSTANT-UNEQL on reload.
 (defparameter +zstd-version+ "1.5.7"
-  "Zstd release this package version tracks (must match ASDF :version / OCI tag).")
+  "Zstd release this package tracks: the first three parts of the ASDF :version and OCI tag (the fourth is the package revision).")
 
 (define-condition zstd-error (error)
   ((message :initarg :message :reader zstd-error-message))

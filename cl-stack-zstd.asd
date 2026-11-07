@@ -1,5 +1,5 @@
 (defsystem "cl-stack-zstd"
-  :version "1.5.7"
+  :version "1.5.7.1"
   :description "Zstandard native overlays + thin CFFI for cl-stack Content-Encoding"
   :author "egao1980"
   :license "MIT"
