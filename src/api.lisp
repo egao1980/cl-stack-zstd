@@ -1,7 +1,10 @@
 (in-package #:cl-stack-zstd)
 
 ;; defparameter: SBCL DEFCONSTANT on strings trips DEFCONSTANT-UNEQL on reload.
-(defparameter +zstd-version+ "1.5.7"
+(defparameter +zstd-version+
+  (let ((parts (uiop:split-string (asdf:component-version (asdf:find-system "cl-stack-zstd"))
+                                  :separator ".")))
+    (format nil "~{~A~^.~}" (subseq parts 0 (min 3 (length parts)))))
   "Zstd release this package tracks: the first three parts of the ASDF :version and OCI tag (the fourth is the package revision).")
 
 (define-condition zstd-error (error)
