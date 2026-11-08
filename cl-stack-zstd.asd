@@ -1,5 +1,5 @@
 (defsystem "cl-stack-zstd"
-  :version "1.5.7.1"
+  :version "1.5.7.2"
   :description "Zstandard native overlays + thin CFFI for cl-stack Content-Encoding"
   :author "egao1980"
   :license "MIT"
@@ -15,23 +15,8 @@
                (:file "streams")
                (:file "compression"))
   :in-order-to ((test-op (test-op "cl-stack-zstd/tests")))
-  :properties
-  (:cl-repo
-   (:cffi-libraries ("libzstd")
-    :provides ("cl-stack-zstd")
-    :overlays
-    ((:platform (:os "linux" :arch "amd64")
-      :layers ((:role "native-library"
-                :files (("lib/linux-amd64/libzstd.so" . "libzstd.so")))))
-     (:platform (:os "linux" :arch "arm64")
-      :layers ((:role "native-library"
-                :files (("lib/linux-arm64/libzstd.so" . "libzstd.so")))))
-     (:platform (:os "darwin" :arch "arm64")
-      :layers ((:role "native-library"
-                :files (("lib/darwin-arm64/libzstd.dylib" . "libzstd.dylib")))))
-     (:platform (:os "windows" :arch "amd64")
-      :layers ((:role "native-library"
-                :files (("lib/windows-amd64/libzstd.dll" . "libzstd.dll")))))))))
+  ;; Overlays: lib/<os>-<arch>/ per platform, from the :native-library components.
+  :properties (:cl-repo (:provides ("cl-stack-zstd"))))
 
 (defsystem "cl-stack-zstd/tests"
   :depends-on ("cl-stack-zstd" "rove")
